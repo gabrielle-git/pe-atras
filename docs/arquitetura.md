@@ -41,4 +41,4 @@ O motor de regras funciona de forma independente da IA. Se a chave não estiver 
 
 ## Segurança
 
-A chave da IA fica somente no servidor (variável de ambiente) e nunca é exposta ao navegador. A entrada é validada e limitada em tamanho antes de ser processada.
+A chave da IA fica somente no servidor (variável de ambiente) e nunca é exposta ao navegador. A entrada é validada e limitada em tamanho antes de ser processada. A rota `/api/analisar` aplica rate limit por IP (padrão: 5 análises por minuto) para proteger a cota do OpenRouter; em excesso responde `429`.

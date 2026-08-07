@@ -53,8 +53,10 @@ Detalhes da metodologia em `docs/avaliacao.md`.
 
 ## Variáveis de ambiente
 
-    OPENROUTER_API_KEY   chave do OpenRouter (opcional, mas recomendada)
-    OPENROUTER_MODEL     modelo a usar (opcional; padrão google/gemini-2.0-flash-001)
+    OPENROUTER_API_KEY        chave do OpenRouter (opcional, mas recomendada)
+    OPENROUTER_MODEL          modelo a usar (opcional; padrão google/gemini-2.0-flash-001)
+    RATE_LIMIT_MAX            máx. de análises por IP na janela (opcional; padrão 5)
+    RATE_LIMIT_WINDOW_MS      janela do rate limit em ms (opcional; padrão 60000)
 
 ## Publicando na Vercel
 
@@ -82,6 +84,7 @@ Detalhes da metodologia em `docs/avaliacao.md`.
       sinais.ts               regras e flags com peso
       classificador.ts        classificação por regras (isolada e testável)
       ia.ts                   chamada ao OpenRouter
+      rate-limit.ts           limite de requisições por IP
       catalogo.ts             catálogo de golpes conhecidos
       tipos.ts                tipos TypeScript
     tests/                    testes unitários (Vitest)

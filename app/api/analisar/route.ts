@@ -2,9 +2,24 @@ import { extrair } from "@/lib/extracao";
 import { gerarFlags } from "@/lib/sinais";
 import { classificarComIA } from "@/lib/ia";
 import { classificarPorRegras } from "@/lib/classificador";
+import { extrairIp, verificarRateLimit } from "@/lib/rate-limit";
 import type { Analise } from "@/lib/tipos";
 
 export async function POST(req: Request) {
+  const limite = verificarRateLimit(extrairIp(req));
+  if (!limite.permitido) {
+    return Response.json(
+      { erro: "Muitas análises seguidas. Espere um pouco e tente de novo." },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(limite.retryAfterSegundos),
+          "X-RateLimit-Remaining": "0",
+        },
+      }
+    );
+  }
+
   let mensagem = "";
   try {
     const body = await req.json();
