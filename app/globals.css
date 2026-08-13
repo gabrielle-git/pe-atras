@@ -28,6 +28,7 @@ body {
 
 .wrap { max-width: 620px; margin: 0 auto; padding: 52px 20px 64px; }
 
+/* Cabecalho */
 .topo { text-align: center; margin-bottom: 30px; }
 .escudo {
   display: block;
@@ -49,6 +50,7 @@ body {
   max-width: 34ch;
 }
 
+/* Caixa de entrada */
 .caixa {
   background: var(--painel);
   border: 1px solid var(--borda);
@@ -115,6 +117,7 @@ body {
 
 .erro { color: var(--alto-cor); font-size: 15px; margin: 14px 0 0; }
 
+/* Resultado */
 .resultado {
   margin-top: 22px;
   border-radius: 18px;

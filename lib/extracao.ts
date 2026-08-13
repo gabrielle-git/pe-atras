@@ -1,5 +1,6 @@
 import type { DadosExtraidos } from "./tipos";
 
+// Servicos de encurtamento de link (escondem o destino real)
 const ENCURTADORES = [
   "bit.ly", "tinyurl.com", "cutt.ly", "is.gd", "t.co", "goo.gl",
   "ow.ly", "rebrand.ly", "encurtador.com.br", "shorturl.at", "l1nk.dev",
@@ -18,6 +19,7 @@ const TERMOS_TROCA_NUMERO = [
   "esse e meu novo", "novo whatsapp", "novo zap", "salva ai meu novo",
 ];
 
+// Remove acentos para comparar de forma mais robusta
 function semAcento(s: string): string {
   return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
@@ -29,6 +31,7 @@ function host(u: string): string {
 export function extrair(textoOriginal: string): DadosExtraidos {
   const texto = semAcento(textoOriginal.toLowerCase());
 
+  // URLs (com ou sem http, com ou sem www)
   const urlRegex = /((https?:\/\/)?(www\.)?[a-z0-9-]+(\.[a-z0-9-]+)+(\/[^\s]*)?)/gi;
   const brutas = textoOriginal.match(urlRegex) || [];
   const urls = brutas

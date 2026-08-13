@@ -2,6 +2,8 @@ import { extrair } from "./extracao";
 import { gerarFlags, riscoPorFlags } from "./sinais";
 import type { Analise } from "./tipos";
 
+// Classificacao apenas por regras (sem IA). Isolada aqui para poder ser
+// testada e avaliada de forma independente da rota e do modelo.
 export function classificarPorRegras(mensagem: string): Analise {
   const dados = extrair(mensagem);
   const flags = gerarFlags(dados);

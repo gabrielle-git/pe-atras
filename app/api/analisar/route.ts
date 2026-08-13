@@ -32,11 +32,9 @@ export async function POST(req: Request) {
   if (!mensagem) return Response.json({ erro: "Cole uma mensagem para analisar." }, { status: 400 });
   if (mensagem.length > 4000) mensagem = mensagem.slice(0, 4000);
 
-  // Camadas determinísticas (sempre rodam, sem IA)
   const dados = extrair(mensagem);
   const flags = gerarFlags(dados);
 
-  // Classificação com IA (se configurada); senão, resultado por regras
   const daIA = await classificarComIA(mensagem, flags, dados);
   const analise: Analise = daIA ?? classificarPorRegras(mensagem);
 
