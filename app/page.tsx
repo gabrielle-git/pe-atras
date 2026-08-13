@@ -3,29 +3,16 @@
 import { useState } from "react";
 import type { Analise } from "@/lib/tipos";
 
-const EXEMPLO =
-  "Oi mãe, troquei de número, salva aí. Tô num aperto e preciso que você me mande um Pix de R$ 450 agora, depois te explico. Não conta pra ninguém.";
+const MAX_CARACTERES = 4000;
 
-function Escudo() {
-  return (
-    <svg className="escudo" width="54" height="54" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M12 2.4 L19.6 5.1 V11 C19.6 16 16.3 19.5 12 21.1 C7.7 19.5 4.4 16 4.4 11 V5.1 Z"
-        fill="#0e7c7b"
-        stroke="#0b625f"
-        strokeWidth="0.6"
-      />
-      <path
-        d="M8.3 12.3 l2.6 2.6 l4.8 -5.4"
-        stroke="#ffffff"
-        strokeWidth="1.9"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
-    </svg>
-  );
-}
+const EXEMPLOS = {
+  familiar:
+    "Oi mãe, troquei de número, salva aí. Tô num aperto e preciso que você me mande um Pix de R$ 450 agora, depois te explico. Não conta pra ninguém.",
+  banco:
+    "BANCO: Identificamos um acesso suspeito na sua conta. Para evitar o bloqueio, confirme seus dados imediatamente em https://bit.ly/conta-segura.",
+  entrega:
+    "Sua encomenda está retida. É necessário pagar uma taxa de R$ 8,90 para liberar a entrega. Acesse o link e regularize agora.",
+};
 
 export default function Home() {
   const [mensagem, setMensagem] = useState("");
@@ -38,66 +25,211 @@ export default function Home() {
       setErro("Cole uma mensagem para analisar.");
       return;
     }
+
     setErro("");
     setCarregando(true);
     setAnalise(null);
+
     try {
       const resp = await fetch("/api/analisar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mensagem }),
       });
+
       const data = await resp.json();
-      if (!resp.ok) setErro(data?.erro || "Não foi possível analisar agora.");
-      else setAnalise(data);
+
+      if (!resp.ok) {
+        setErro(data?.erro || "Não foi possível analisar agora.");
+      } else {
+        setAnalise(data);
+
+        window.setTimeout(() => {
+          document.getElementById("resultado")?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }, 80);
+      }
     } catch {
-      setErro("Não foi possível analisar agora. Tente de novo.");
+      setErro("Não foi possível analisar agora. Tente novamente.");
     } finally {
       setCarregando(false);
     }
   }
 
+  function usarExemplo(tipo: keyof typeof EXEMPLOS) {
+    setMensagem(EXEMPLOS[tipo]);
+    setAnalise(null);
+    setErro("");
+  }
+
   return (
-    <main className="wrap">
-      <header className="topo">
-        <Escudo />
-        <div className="marca">Pé Atrás</div>
-        <p className="sub">Recebeu uma mensagem estranha? Cole ela aqui e veja se tem cara de golpe.</p>
+    <main className="pagina">
+      <header className="cabecalho">
+        <a className="marca" href="#" aria-label="Pé Atrás, início">
+          Pé Atrás
+        </a>
+
+        <nav className="nav" aria-label="Navegação principal">
+          <a href="#como-funciona">Como funciona</a>
+          <a
+            href="https://github.com/gabrielle-git/pe-atras"
+            target="_blank"
+            rel="noreferrer"
+          >
+            GitHub
+          </a>
+        </nav>
       </header>
 
-      <section className="caixa">
-        <label htmlFor="msg" className="rotulo">Mensagem recebida</label>
-        <textarea
-          id="msg"
-          className="entrada"
-          placeholder="Cole aqui a mensagem que você recebeu..."
-          value={mensagem}
-          onChange={(e) => setMensagem(e.target.value)}
-          rows={6}
-        />
+      <section className="introducao" aria-labelledby="titulo-principal">
+        <p className="sobretitulo">VERIFIQUE ANTES DE CONFIAR</p>
+        <h1 id="titulo-principal">Ficou com o pé atrás?</h1>
+        <p className="resumo">
+          Cole a mensagem que você recebeu. O Pé Atrás procura sinais comuns de
+          fraude e explica o que merece sua atenção antes que você tome uma
+          decisão.
+        </p>
+      </section>
+
+      <section className="ferramenta" aria-labelledby="titulo-ferramenta">
+        <div className="titulo-secao">
+          <h2 id="titulo-ferramenta">Analisar uma mensagem</h2>
+          <p>
+            Cole o conteúdo exatamente como chegou para que a análise tenha mais
+            contexto.
+          </p>
+        </div>
+
+        <div className="campo">
+          <label htmlFor="msg" className="rotulo">
+            Mensagem recebida
+          </label>
+
+          <textarea
+            id="msg"
+            className="entrada"
+            placeholder="Cole aqui a mensagem que você recebeu..."
+            value={mensagem}
+            onChange={(e) =>
+              setMensagem(e.target.value.slice(0, MAX_CARACTERES))
+            }
+            rows={6}
+            maxLength={MAX_CARACTERES}
+            aria-describedby="privacidade contador"
+          />
+
+          <div className="campo-meta">
+            <p id="privacidade">
+              Evite inserir senhas, códigos ou dados bancários completos.
+            </p>
+            <p id="contador" aria-live="polite">
+              {mensagem.length}/{MAX_CARACTERES}
+            </p>
+          </div>
+        </div>
+
         <div className="acoes">
-          <button className="btn" onClick={analisar} disabled={carregando}>
-            {carregando ? "Analisando..." : "Analisar mensagem"}
-          </button>
           <button
-            className="btn-fantasma"
-            onClick={() => {
-              setMensagem(EXEMPLO);
-              setAnalise(null);
-              setErro("");
-            }}
+            className="btn-principal"
+            onClick={analisar}
+            disabled={carregando}
           >
-            Usar um exemplo
+            {carregando ? "Analisando mensagem..." : "Analisar mensagem"}
+            {!carregando && <span aria-hidden="true">→</span>}
           </button>
         </div>
-        {erro && <p className="erro">{erro}</p>}
+
+        <div className="exemplos" aria-label="Mensagens de exemplo">
+          <span>Quer testar primeiro?</span>
+          <button type="button" onClick={() => usarExemplo("familiar")}>
+            Falso familiar
+          </button>
+          <button type="button" onClick={() => usarExemplo("banco")}>
+            Banco
+          </button>
+          <button type="button" onClick={() => usarExemplo("entrega")}>
+            Entrega
+          </button>
+        </div>
+
+        {erro && (
+          <p className="erro" role="alert">
+            {erro}
+          </p>
+        )}
+
+        {carregando && (
+          <div className="carregamento" aria-live="polite">
+            <div className="linha-carregamento" aria-hidden="true">
+              <span />
+            </div>
+            <p>A mensagem está sendo verificada.</p>
+          </div>
+        )}
       </section>
 
       {analise && <Resultado analise={analise} />}
 
+      <section
+        className="como-funciona"
+        id="como-funciona"
+        aria-labelledby="titulo-como-funciona"
+      >
+        <div className="titulo-secao">
+          <h2 id="titulo-como-funciona">Como funciona</h2>
+          <p>
+            O Pé Atrás combina verificações objetivas com análise de contexto.
+          </p>
+        </div>
+
+        <div className="etapas">
+          <article className="etapa etapa-a">
+            <span>01</span>
+            <h3>Sinais conhecidos</h3>
+            <p>
+              Procura urgência, Pix, links suspeitos, troca de número e outros
+              padrões recorrentes em golpes.
+            </p>
+          </article>
+
+          <article className="etapa etapa-b">
+            <span>02</span>
+            <h3>Contexto da mensagem</h3>
+            <p>
+              Avalia como esses elementos aparecem juntos e qual abordagem está
+              sendo usada.
+            </p>
+          </article>
+
+          <article className="etapa etapa-c">
+            <span>03</span>
+            <h3>Explicação do resultado</h3>
+            <p>
+              Mostra por que a mensagem chamou atenção e orienta qual deve ser o
+              próximo passo.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section className="aviso" aria-labelledby="titulo-aviso">
+        <p className="aviso-rotulo">IMPORTANTE</p>
+        <div>
+          <h2 id="titulo-aviso">Na dúvida, confirme por outro canal.</h2>
+          <p>
+            O Pé Atrás oferece uma orientação educativa, não uma garantia.
+            “Sem sinais de golpe” não significa “seguro”. Antes de pagar,
+            clicar ou compartilhar dados, confirme a informação pelo site,
+            aplicativo ou contato oficial.
+          </p>
+        </div>
+      </section>
+
       <footer className="rodape">
-        Orientação educativa, não uma garantia. &ldquo;Sem sinais de golpe&rdquo; não significa &ldquo;seguro&rdquo;.
-        Na dúvida, confirme sempre por outro canal antes de pagar.
+        <p>Pé Atrás</p>
+        <p>Projeto acadêmico sobre prevenção a golpes digitais.</p>
       </footer>
     </main>
   );
@@ -111,32 +243,47 @@ function Resultado({ analise }: { analise: Analise }) {
   };
 
   return (
-    <section className={`resultado risco-${analise.risco}`}>
-      <div className="selo">{rotulo[analise.risco]}</div>
-      <h2 className="tipo">{analise.tipoGolpe}</h2>
-      <p className="explica">{analise.explicacao}</p>
+    <section
+      className={`resultado risco-${analise.risco}`}
+      id="resultado"
+      aria-labelledby="titulo-resultado"
+    >
+      <div className="resultado-topo">
+        <p className="resultado-label">Resultado da análise</p>
+        <span className="status-risco">{rotulo[analise.risco]}</span>
+      </div>
+
+      <h2 id="titulo-resultado" className="tipo-golpe">
+        {analise.tipoGolpe}
+      </h2>
+
+      <p className="explicacao">{analise.explicacao}</p>
 
       {analise.sinais.length > 0 && (
-        <div className="bloco">
-          <h3>Sinais encontrados</h3>
-          <ul>
-            {analise.sinais.map((s, i) => (
-              <li key={i}>{s}</li>
+        <div className="painel-sinais">
+          <h3>Por que desconfiar</h3>
+
+          <ol className="lista-sinais">
+            {analise.sinais.map((sinal, i) => (
+              <li key={`${sinal}-${i}`}>
+                <span>{String(i + 1).padStart(2, "0")}</span>
+                <p>{sinal}</p>
+              </li>
             ))}
-          </ul>
+          </ol>
         </div>
       )}
 
-      <div className="bloco orienta">
-        <h3>O que fazer</h3>
+      <div className="orientacao">
+        <h3>O que fazer agora</h3>
         <p>{analise.orientacao}</p>
       </div>
 
-      <div className="fonte">
+      <p className="fonte">
         {analise.fonte === "ia"
-          ? "Análise com apoio de inteligência artificial"
-          : "Análise por regras de verificação"}
-      </div>
+          ? "Análise realizada com apoio de inteligência artificial."
+          : "Análise realizada por regras de verificação."}
+      </p>
     </section>
   );
 }
