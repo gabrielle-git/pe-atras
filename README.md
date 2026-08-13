@@ -10,6 +10,11 @@ O projeto combina verificações determinísticas com análise contextual por in
 
 **Demo:** [pe-atras.vercel.app](https://pe-atras.vercel.app/)
 
+## Interface
+A interface foi pensada para manter o processo de verificação simples e direto: colar a mensagem, analisar e compreender os sinais encontrados.
+
+![Tela inicial do Pé Atrás](docs/images/pe-atras-home.png)
+
 ---
 
 ## Sobre o projeto
@@ -132,7 +137,7 @@ O projeto foi desenvolvido com:
 * **OpenRouter**
 * **Vitest**
 * **Vercel**
-* CSS próprio para a interface
+* **CSS próprio para a interface**
 
 ---
 
