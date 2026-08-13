@@ -73,6 +73,7 @@ export default function Home() {
 
         <nav className="nav" aria-label="Navegação principal">
           <a href="#como-funciona">Como funciona</a>
+
           <a
             href="https://github.com/gabrielle-git/pe-atras"
             target="_blank"
@@ -85,7 +86,9 @@ export default function Home() {
 
       <section className="introducao" aria-labelledby="titulo-principal">
         <p className="sobretitulo">VERIFIQUE ANTES DE CONFIAR</p>
+
         <h1 id="titulo-principal">Ficou com o pé atrás?</h1>
+
         <p className="resumo">
           Cole a mensagem que você recebeu. O Pé Atrás procura sinais comuns de
           fraude e explica o que merece sua atenção antes que você tome uma
@@ -96,6 +99,7 @@ export default function Home() {
       <section className="ferramenta" aria-labelledby="titulo-ferramenta">
         <div className="titulo-secao">
           <h2 id="titulo-ferramenta">Analisar uma mensagem</h2>
+
           <p>
             Cole o conteúdo exatamente como chegou para que a análise tenha mais
             contexto.
@@ -124,6 +128,7 @@ export default function Home() {
             <p id="privacidade">
               Evite inserir senhas, códigos ou dados bancários completos.
             </p>
+
             <p id="contador" aria-live="polite">
               {mensagem.length}/{MAX_CARACTERES}
             </p>
@@ -137,18 +142,22 @@ export default function Home() {
             disabled={carregando}
           >
             {carregando ? "Analisando mensagem..." : "Analisar mensagem"}
+
             {!carregando && <span aria-hidden="true">→</span>}
           </button>
         </div>
 
         <div className="exemplos" aria-label="Mensagens de exemplo">
           <span>Quer testar primeiro?</span>
+
           <button type="button" onClick={() => usarExemplo("familiar")}>
             Falso familiar
           </button>
+
           <button type="button" onClick={() => usarExemplo("banco")}>
             Banco
           </button>
+
           <button type="button" onClick={() => usarExemplo("entrega")}>
             Entrega
           </button>
@@ -165,6 +174,7 @@ export default function Home() {
             <div className="linha-carregamento" aria-hidden="true">
               <span />
             </div>
+
             <p>A mensagem está sendo verificada.</p>
           </div>
         )}
@@ -179,6 +189,7 @@ export default function Home() {
       >
         <div className="titulo-secao">
           <h2 id="titulo-como-funciona">Como funciona</h2>
+
           <p>
             O Pé Atrás combina verificações objetivas com análise de contexto.
           </p>
@@ -187,7 +198,9 @@ export default function Home() {
         <div className="etapas">
           <article className="etapa etapa-a">
             <span>01</span>
+
             <h3>Sinais conhecidos</h3>
+
             <p>
               Procura urgência, Pix, links suspeitos, troca de número e outros
               padrões recorrentes em golpes.
@@ -196,7 +209,9 @@ export default function Home() {
 
           <article className="etapa etapa-b">
             <span>02</span>
+
             <h3>Contexto da mensagem</h3>
+
             <p>
               Avalia como esses elementos aparecem juntos e qual abordagem está
               sendo usada.
@@ -205,7 +220,9 @@ export default function Home() {
 
           <article className="etapa etapa-c">
             <span>03</span>
+
             <h3>Explicação do resultado</h3>
+
             <p>
               Mostra por que a mensagem chamou atenção e orienta qual deve ser o
               próximo passo.
@@ -216,8 +233,10 @@ export default function Home() {
 
       <section className="aviso" aria-labelledby="titulo-aviso">
         <p className="aviso-rotulo">IMPORTANTE</p>
+
         <div>
           <h2 id="titulo-aviso">Na dúvida, confirme por outro canal.</h2>
+
           <p>
             O Pé Atrás oferece uma orientação educativa, não uma garantia.
             “Sem sinais de golpe” não significa “seguro”. Antes de pagar,
@@ -229,6 +248,7 @@ export default function Home() {
 
       <footer className="rodape">
         <p>Pé Atrás</p>
+
         <p>Projeto acadêmico sobre prevenção a golpes digitais.</p>
       </footer>
     </main>
@@ -242,6 +262,18 @@ function Resultado({ analise }: { analise: Analise }) {
     alto: "Risco alto",
   };
 
+  const tituloSinais: Record<Analise["risco"], string> = {
+    baixo: "O que observamos",
+    medio: "Sinais de atenção",
+    alto: "Por que desconfiar",
+  };
+
+  const tituloResultado =
+    analise.risco === "baixo" &&
+    analise.tipoGolpe.toLowerCase() === "nenhum identificado"
+      ? "Nenhum golpe identificado"
+      : analise.tipoGolpe;
+
   return (
     <section
       className={`resultado risco-${analise.risco}`}
@@ -250,18 +282,19 @@ function Resultado({ analise }: { analise: Analise }) {
     >
       <div className="resultado-topo">
         <p className="resultado-label">Resultado da análise</p>
+
         <span className="status-risco">{rotulo[analise.risco]}</span>
       </div>
 
       <h2 id="titulo-resultado" className="tipo-golpe">
-        {analise.tipoGolpe}
+        {tituloResultado}
       </h2>
 
       <p className="explicacao">{analise.explicacao}</p>
 
       {analise.sinais.length > 0 && (
         <div className="painel-sinais">
-          <h3>Por que desconfiar</h3>
+          <h3>{tituloSinais[analise.risco]}</h3>
 
           <ol className="lista-sinais">
             {analise.sinais.map((sinal, i) => (
@@ -276,6 +309,7 @@ function Resultado({ analise }: { analise: Analise }) {
 
       <div className="orientacao">
         <h3>O que fazer agora</h3>
+
         <p>{analise.orientacao}</p>
       </div>
 
