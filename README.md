@@ -12,12 +12,13 @@ Golpes digitais atingem cerca de 1 em cada 3 brasileiros por ano, e as maiores v
 
 A análise acontece no servidor (rota de API), em camadas — as verificações objetivas rodam antes da IA:
 
-1. Extração determinística (`lib/extracao.ts`): identifica links, chaves Pix, valores, telefones e expressões de urgência na mensagem.
-2. Sinais e flags (`lib/sinais.ts`): aplica regras (link encurtado, imitação de banco, terminação de site suspeita, pedido de senha, "troquei de número"...), cada uma com um peso, e calcula um risco preliminar.
-3. Classificação com IA (`lib/ia.ts`): envia a mensagem somada às flags ao modelo (via OpenRouter) e recebe risco, tipo de golpe, sinais e orientação em JSON.
-4. Se a IA não estiver configurada ou falhar, o app responde com o resultado das regras (`lib/classificador.ts`) — ou seja, funciona mesmo sem chave.
+1. Rate limit por IP (`lib/rate-limit.ts`): limita análises seguidas (padrão: 5 por minuto) para proteger a cota do OpenRouter; em excesso a API responde `429`.
+2. Extração determinística (`lib/extracao.ts`): identifica links, chaves Pix, valores, telefones e expressões de urgência na mensagem.
+3. Sinais e flags (`lib/sinais.ts`): aplica regras (link encurtado, imitação de banco, terminação de site suspeita, pedido de senha, "troquei de número"...), cada uma com um peso, e calcula um risco preliminar.
+4. Classificação com IA (`lib/ia.ts`): envia a mensagem somada às flags ao modelo (via OpenRouter) e recebe risco, tipo de golpe, sinais e orientação em JSON.
+5. Se a IA não estiver configurada ou falhar, o app responde com o resultado das regras (`lib/classificador.ts`) — ou seja, funciona mesmo sem chave.
 
-A decisão de fazer as verificações objetivas antes de acionar a IA é intencional: é mais rápido, mais barato e auditável, e entrega ao modelo um contexto já qualificado. A chave da IA fica somente no servidor (variável de ambiente), nunca no navegador.
+A decisão de fazer as verificações objetivas antes de acionar a IA é intencional: é mais rápido, mais barato e auditável, e entrega ao modelo um contexto já qualificado. A chave da IA fica somente no servidor (variável de ambiente), nunca no navegador. O rate limit atual é em memória no processo (adequado para demo; em serverless na Vercel o contador não é compartilhado entre todas as instâncias).
 
 ## Tecnologias
 
@@ -41,7 +42,7 @@ Sem a chave do OpenRouter o app já funciona usando as regras. Com a chave, a re
 
 ## Testes e avaliação de acurácia
 
-Testes automatizados (unitários) do motor de análise:
+Testes automatizados (unitários) do motor de análise e do rate limit:
 
     npm test
 
@@ -62,7 +63,7 @@ Detalhes da metodologia em `docs/avaliacao.md`.
 
 1. Suba este projeto para um repositório no GitHub.
 2. Em vercel.com, importe o repositório.
-3. Em Settings > Environment Variables, adicione OPENROUTER_API_KEY (e OPENROUTER_MODEL, se quiser).
+3. Em Settings > Environment Variables, adicione `OPENROUTER_API_KEY` (e, se quiser, `OPENROUTER_MODEL`, `RATE_LIMIT_MAX`, `RATE_LIMIT_WINDOW_MS`).
 4. Faça o deploy. A Vercel gera o link público para compartilhar e demonstrar.
 
 ## Documentação
